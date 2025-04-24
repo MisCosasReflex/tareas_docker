@@ -3,12 +3,7 @@
 import reflex as rx
 
 from rxconfig import config
-
-
-class State(rx.State):
-    """The app state."""
-
-    ...
+from nueva_app_reflex.state import State
 
 
 def index() -> rx.Component:
