@@ -1,20 +1,24 @@
 """
 Módulo de configuración de la base de datos para la aplicación Reflex.
 Utiliza SQLAlchemy con SQLite y proporciona el motor, la sesión y la creación de tablas.
+La ruta de la base de datos se puede configurar con la variable de entorno DATABASE_PATH o en el archivo .env.
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from .models import Base
 from sqlalchemy.engine import Engine
 
-# Obtener el directorio base absoluto donde se encuentra este archivo usando Path
-BASE_DIR: Path = Path(__file__).resolve().parent
-# Definir la ruta absoluta para la base de datos SQLite usando Path
-DB_PATH: Path = Path("/app/data/app.db")
-# Construir la URL de conexión para SQLAlchemy
-DATABASE_URL: str = f"sqlite:///{DB_PATH}"
+# Obtener la ruta de la base de datos desde la variable de entorno o usar ruta relativa por defecto
+DEFAULT_DB_PATH = Path(__file__).resolve().parent.parent / "data" / "app.db"
+DB_PATH = os.environ.get("DATABASE_PATH", str(DEFAULT_DB_PATH))
+DATABASE_URL = f"sqlite:///{DB_PATH}"
+
+print(f"[DEBUG] Usando base de datos en: {DB_PATH}")
 
 # Crear el motor de la base de datos con el parámetro necesario para SQLite
 engine: Engine = create_engine(

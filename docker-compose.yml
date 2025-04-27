@@ -5,7 +5,10 @@ services:
     build: .
     container_name: reflex_app
     ports:
-      - "3005:3000"
-    command: reflex run --backend-host 0.0.0.0
+      - "3001:3000"
+    environment:
+      - DATABASE_PATH=/app/data/app.db
     volumes:
       - ./data:/app/data
+      - ./nueva_app_reflex:/app/nueva_app_reflex
+    command: reflex run --env prod --backend-host 0.0.0.0

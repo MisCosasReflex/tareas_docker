@@ -1,2 +1,5 @@
 sqlalchemy
 reflex
+python-dotenv
+email-validator
+reflex==0.7.8

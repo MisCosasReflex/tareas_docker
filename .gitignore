@@ -1,4 +1,6 @@
 *.db
+/data/
+.env
 *.py[cod]
 .web
 assets/external/

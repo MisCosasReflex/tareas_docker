@@ -27,24 +27,50 @@ Este proyecto es una aplicación web construida con [Reflex](https://reflex.dev/
 
 ---
 
-## 🐳 Detalles clave de la Dockerización
+## 📁 Estructura del proyecto
 
-- **Node.js y npm:** Se instalan explícitamente en el Dockerfile porque Reflex los requiere para compilar el frontend. En local, Reflex los descarga automáticamente si hacen falta, pero en Docker debes instalarlos tú.
-- **curl y unzip:** Se instalan para permitir que Reflex descargue y descomprima binarios o plantillas durante la build.
-- **Puertos:**
-  - El contenedor expone el puerto 3000 (frontend Reflex) y se mapea al 3005 del host para evitar conflictos con la versión local.
-- **Permisos:** El Dockerfile limpia archivos generados y ajusta permisos para evitar bloqueos en builds repetidos.
+```
+nueva_app_reflex/
+├── db/         # Código Python: modelos, schemas, configuración de la base de datos
+├── data/       # Datos reales de la app: aquí se guarda la base de datos SQLite (app.db)
+├── nueva_app_reflex.py  # Entrada principal de la app Reflex
+├── state.py    # Lógica de estado global
+└── ...
+```
 
----
+## 📝 Uso en desarrollo local
 
-## 💡 Notas y recomendaciones
+1. **Crea el entorno virtual y actívalo:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt  # si tienes requirements
+   ```
+2. **Asegúrate de que existe la carpeta `data/`:**
+   ```bash
+   mkdir -p data
+   ```
+3. **Ejecuta la app:**
+   ```bash
+   reflex run
+   ```
+   La base de datos estará en `./data/app.db`.
 
-- Si amplías el proyecto (por ejemplo, añadiendo una base de datos externa, variables de entorno, tests, etc.), documenta aquí los pasos extra o comandos relevantes.
-- Si usas Windows localmente, normalmente no necesitas instalar curl/unzip, pero en Docker (Linux) sí.
-- Si cambias la estructura de carpetas, asegúrate de actualizar el Dockerfile y docker-compose.yml en consecuencia.
-- Para builds de producción, revisa los permisos y considera usar imágenes más pequeñas o multi-stage.
+## 🐳 Uso con Docker
 
----
+1. **Construye y ejecuta el contenedor:**
+   ```bash
+   docker-compose up --build
+   ```
+2. **Persistencia de datos:**
+   - El archivo de base de datos estará en `./data/app.db` en tu máquina, y en `/app/data/app.db` dentro del contenedor.
+   - Puedes respaldar o inspeccionar el archivo desde tu carpeta local.
+
+## 📝 Notas importantes
+
+- La carpeta `data/` está en `.gitignore` para evitar subir datos reales al repositorio.
+- El código de modelos, schemas y configuración está en `db/`. **No guardes archivos de datos en esa carpeta.**
+- Puedes cambiar la ubicación de la base de datos usando la variable de entorno `DATABASE_PATH`.
 
 ## 📚 Recursos útiles
 - [Reflex Docs](https://reflex.dev/docs/)
