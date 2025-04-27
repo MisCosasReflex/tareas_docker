@@ -1,30 +1,36 @@
 import reflex as rx
-from typing import Optional
+from typing import Optional, List
 from nueva_app_reflex.db.schemas import UsuarioCreate
 from nueva_app_reflex.db.database import SessionLocal
 from nueva_app_reflex.db.models import Usuario
 from sqlalchemy.exc import IntegrityError
 import hashlib
+from pydantic import ValidationError
+
 
 class State(rx.State):
     """
     Estado principal de la aplicación Reflex.
-
-    Puedes agregar aquí variables y métodos que gestionen el estado global de la app.
     """
     mensaje_usuario: Optional[str] = None
+    usuarios_lista: List[dict] = []
 
-    def registrar_usuario(self, usuario: UsuarioCreate) -> None:
+    def registrar_usuario(self, nombre, email, password, es_admin=False) -> None:
         """
         Registra un nuevo usuario en la base de datos.
-
-        Args:
-            usuario (UsuarioCreate): Datos validados del usuario.
-                - nombre: nombre de usuario único
-                - email: dirección de correo electrónico única
-                - password: contraseña en texto plano (será hasheada)
-                - es_admin: si el usuario es administrador o no
         """
+        try:
+            usuario = UsuarioCreate(
+                nombre=nombre,
+                email=email,
+                password=password,
+                es_admin=es_admin,
+            )
+        except ValidationError as e:
+            print(f"[DEBUG] Error de validación Pydantic: {e}")
+            self.mensaje_usuario = f"Error de validación: {e}"
+            return
+        
         db = SessionLocal()
         try:
             password_hash = hashlib.sha256(usuario.password.encode()).hexdigest()
@@ -36,6 +42,7 @@ class State(rx.State):
             )
             db.add(nuevo_usuario)
             db.commit()
+            print(f"[DEBUG] Usuario guardado: {usuario.nombre}, {usuario.email}, admin={usuario.es_admin}")
             self.mensaje_usuario = f"Usuario '{usuario.nombre}' creado con éxito."
         except IntegrityError:
             db.rollback()
@@ -43,5 +50,28 @@ class State(rx.State):
         except Exception as e:
             db.rollback()
             self.mensaje_usuario = f"Error al crear usuario: {e}"
+        finally:
+            db.close()
+
+    def consultar_usuarios(self) -> None:
+        """
+        Consulta todos los usuarios de la base de datos.
+        """
+        db = SessionLocal()
+        try:
+            usuarios = db.query(Usuario).all()
+            print(f"[DEBUG] Usuarios consultados: {usuarios}")
+            if usuarios:
+                self.usuarios_lista = [
+                    {"nombre": u.nombre, "email": u.email, "es_admin": u.es_admin}
+                    for u in usuarios
+                ]
+                self.mensaje_usuario = f"{len(usuarios)} usuario(s) encontrados."
+            else:
+                self.usuarios_lista = []
+                self.mensaje_usuario = "No hay usuarios registrados."
+        except Exception as e:
+            self.usuarios_lista = []
+            self.mensaje_usuario = f"Error al consultar usuarios: {e}"
         finally:
             db.close()

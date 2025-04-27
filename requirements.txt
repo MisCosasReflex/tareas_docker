@@ -1,5 +1,5 @@
 sqlalchemy
-reflex
 python-dotenv
 email-validator
+pydantic
 reflex==0.7.8
