@@ -4,7 +4,7 @@ Este proyecto es una aplicación web construida con [Reflex](https://reflex.dev/
 
 ---
 
-## 🚀 ¿Cómo levantar la app en Docker?
+## ¿Cómo levantar la app en Docker?
 
 1. **Construye la imagen y levanta el contenedor:**
    ```bash
@@ -17,7 +17,7 @@ Este proyecto es una aplicación web construida con [Reflex](https://reflex.dev/
 
 ---
 
-## 📦 Estructura básica
+## Estructura básica
 
 - `Dockerfile`: Configuración para construir la imagen Docker.
 - `docker-compose.yml`: Orquestación y mapeo de puertos.
@@ -27,7 +27,7 @@ Este proyecto es una aplicación web construida con [Reflex](https://reflex.dev/
 
 ---
 
-## 📁 Estructura del proyecto
+## Estructura del proyecto
 
 ```
 nueva_app_reflex/
@@ -38,7 +38,7 @@ nueva_app_reflex/
 └── ...
 ```
 
-## 📝 Uso en desarrollo local
+## Uso en desarrollo local
 
 1. **Crea el entorno virtual y actívalo:**
    ```bash
@@ -56,7 +56,7 @@ nueva_app_reflex/
    ```
    La base de datos estará en `./data/app.db`.
 
-## 🐳 Uso con Docker
+## Uso con Docker
 
 1. **Construye y ejecuta el contenedor:**
    ```bash
@@ -66,17 +66,35 @@ nueva_app_reflex/
    - El archivo de base de datos estará en `./data/app.db` en tu máquina, y en `/app/data/app.db` dentro del contenedor.
    - Puedes respaldar o inspeccionar el archivo desde tu carpeta local.
 
-## 📝 Notas importantes
+## Notas importantes
 
 - La carpeta `data/` está en `.gitignore` para evitar subir datos reales al repositorio.
 - El código de modelos, schemas y configuración está en `db/`. **No guardes archivos de datos en esa carpeta.**
 - Puedes cambiar la ubicación de la base de datos usando la variable de entorno `DATABASE_PATH`.
 
-## 📚 Recursos útiles
+## Recursos útiles
 - [Reflex Docs](https://reflex.dev/docs/)
 ---
 
-## ✍️ Modifica este README
+## Estado actual de la aplicación
+
+- **Página raíz (`/`)**: Muestra un encabezado "Aplicacion de tareas por hacer" y dos botones:
+    - **"Agrega un usuario nuevo"**: Dirige a la página de registro de usuario (`/registro-usuario`).
+    - **"Consulta los usuarios agregados"**: (Botón preparado para futura funcionalidad de listado de usuarios).
+- **Página de registro de usuario (`/registro-usuario`)**: Permite ingresar nombre, email, contraseña y marcar si el usuario es administrador. Al enviar el formulario, se muestra un mensaje de éxito (el registro real en base de datos puede activarse/restaurarse en el callback correspondiente).
+- **Base de datos**: Se gestiona con SQLAlchemy y SQLite. El archivo se almacena en `data/app.db` y es persistente tanto en local como en Docker.
+- **Preparado para contenedores**: Toda la configuración y rutas de base de datos son compatibles con Docker y desarrollo local.
+
+### Flujo lógico actual
+1. El usuario accede a la página principal (`/`).
+2. Puede ir al registro de usuario mediante el botón correspondiente.
+3. (Próximamente) Podrá consultar usuarios agregados desde el botón preparado.
+
+> ⚠️ **Nota:** Las nuevas funcionalidades (página de registro de usuario y navegación desde la raíz) solo han sido probadas en entorno local. **Aún no se han verificado en Docker.** Si encuentras algún problema ejecutando en contenedor, revisa la configuración y dependencias, y repórtalo para su ajuste.
+
+---
+
+## Modifica este README
 
 Actualiza este archivo cada vez que agregues nuevas funcionalidades, dependencias, servicios o instrucciones. ¡Manténlo como tu fuente de verdad para el despliegue y desarrollo!
 
