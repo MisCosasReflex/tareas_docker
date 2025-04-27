@@ -52,6 +52,7 @@ class State(rx.State):
             self.mensaje_usuario = f"Error al crear usuario: {e}"
         finally:
             db.close()
+        return self.set_mensaje_usuario(self.mensaje_usuario)
 
     def consultar_usuarios(self) -> None:
         """

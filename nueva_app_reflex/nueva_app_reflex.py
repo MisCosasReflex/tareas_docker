@@ -58,8 +58,7 @@ def registro_usuario() -> rx.Component:
         es_admin = fields.get("es_admin", False)
         
         # Llamada a la función para registrar el usuario
-        State.registrar_usuario(nombre, email, password, es_admin)
-        return State.set_mensaje_usuario("¡Usuario registrado!")
+        return State.registrar_usuario(nombre, email, password, es_admin)
 
 
     return rx.container(
