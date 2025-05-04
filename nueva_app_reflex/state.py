@@ -6,7 +6,7 @@ from nueva_app_reflex.db.models import Usuario
 from sqlalchemy.exc import IntegrityError
 import hashlib
 from pydantic import ValidationError
-from nueva_app_reflex.users.services import servicio_registrar_usuario
+from nueva_app_reflex.users.services import servicio_registrar_usuario, servicio_consultar_usuarios, servicio_filtrar_usuario
 
 
 class State(rx.State):
@@ -47,24 +47,7 @@ class State(rx.State):
         Recupera la lista de usuarios y la almacena en el estado. Si hay un error,
         actualiza el mensaje y limpia la lista.
         """
-        db = SessionLocal()
-        try:
-            usuarios: list[Usuario] = db.query(Usuario).all()
-            print(f"[DEBUG] Usuarios consultados: {usuarios}")
-            if usuarios:
-                self.usuarios_lista = [
-                    {"nombre": u.nombre, "email": u.email, "es_admin": u.es_admin}
-                    for u in usuarios
-                ]
-                self.mensaje_usuario = f"{len(usuarios)} usuario(s) encontrados."
-            else:
-                self.usuarios_lista = []
-                self.mensaje_usuario = "No hay usuarios registrados."
-        except Exception as e:
-            self.usuarios_lista = []
-            self.mensaje_usuario = f"Error al consultar usuarios: {e}"
-        finally:
-            db.close()
+        self.usuarios_lista, self.mensaje_usuario = servicio_consultar_usuarios()
 
     def filtrar_usuario(self, nombre: str) -> None:
         """
@@ -76,20 +59,4 @@ class State(rx.State):
         Args:
             nombre (str): Nombre del usuario a buscar.
         """
-        db = SessionLocal()
-        try:
-            usuario_encontrado: Optional[Usuario] = db.query(Usuario).filter(Usuario.nombre == nombre).first()
-            if usuario_encontrado:
-                self.usuarios_lista = [
-                    {"nombre": usuario_encontrado.nombre,
-                     "email": usuario_encontrado.email,
-                     "es_admin": usuario_encontrado.es_admin}
-                ]
-                self.mensaje_usuario = f"Usuario '{usuario_encontrado.nombre}' encontrado."
-            else:
-                self.usuarios_lista = []
-                self.mensaje_usuario = "No se encontro el usuario."
-        except Exception as e:
-            self.mensaje_usuario = f"Error al consultar usuarios: {e}"
-        finally:
-            db.close()
+        self.usuarios_lista, self.mensaje_usuario = servicio_filtrar_usuario(nombre)
