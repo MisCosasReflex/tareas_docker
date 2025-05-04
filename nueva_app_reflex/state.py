@@ -6,6 +6,7 @@ from nueva_app_reflex.db.models import Usuario
 from sqlalchemy.exc import IntegrityError
 import hashlib
 from pydantic import ValidationError
+from nueva_app_reflex.users.services import servicio_registrar_usuario
 
 
 class State(rx.State):
@@ -37,39 +38,7 @@ class State(rx.State):
             password (str): Contraseña en texto plano.
             es_admin (bool, opcional): Indica si el usuario es administrador. Por defecto False.
         """
-        try:
-            usuario: UsuarioCreate = UsuarioCreate(
-                nombre=nombre,
-                email=email,
-                password=password,
-                es_admin=es_admin,
-            )
-        except ValidationError as e:
-            print(f"[DEBUG] Error de validación Pydantic: {e}")
-            self.mensaje_usuario = f"Error de validación: {e}"
-            return
-        db = SessionLocal()
-        try:
-            password_hash: str = hashlib.sha256(usuario.password.encode()).hexdigest()
-            nuevo_usuario: Usuario = Usuario(
-                nombre=usuario.nombre,
-                email=usuario.email,
-                password_hash=password_hash,
-                es_admin=usuario.es_admin,
-            )
-            db.add(nuevo_usuario)
-            db.commit()
-            print(f"[DEBUG] Usuario guardado: {usuario.nombre}, {usuario.email}, admin={usuario.es_admin}")
-            self.mensaje_usuario = f"Usuario '{usuario.nombre}' creado con éxito."
-        except IntegrityError:
-            db.rollback()
-            self.mensaje_usuario = f"El usuario '{usuario.nombre}' o el email '{usuario.email}' ya existen."
-        except Exception as e:
-            db.rollback()
-            self.mensaje_usuario = f"Error al crear usuario: {e}"
-        finally:
-            db.close()
-        return self.set_mensaje_usuario(self.mensaje_usuario)
+        self.mensaje_usuario = servicio_registrar_usuario(nombre, email, password, es_admin)
 
     def consultar_usuarios(self) -> None:
         """
