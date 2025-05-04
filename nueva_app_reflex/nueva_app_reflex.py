@@ -1,6 +1,14 @@
 """
 Módulo principal de la aplicación Reflex para gestión de tareas.
-Define la página principal y configura la aplicación.
+
+Este módulo define la estructura principal de la aplicación web, incluyendo:
+- La página de bienvenida (index)
+- El formulario de registro de usuarios
+- La consulta de usuarios registrados
+- La configuración de rutas y páginas en la aplicación Reflex
+
+Uso:
+    Ejecutar la aplicación con Reflex y acceder a las rutas definidas.
 """
 
 import reflex as rx
@@ -15,6 +23,8 @@ from typing import Dict, List
 def index() -> rx.Component:
     """
     Página principal de bienvenida de la aplicación Reflex.
+
+    Muestra enlaces a las páginas de registro y consulta de usuarios.
 
     Returns:
         rx.Component: Componente raíz de la página principal.
@@ -45,10 +55,25 @@ def registro_usuario() -> rx.Component:
     """
     Página para registrar nuevos usuarios.
 
+    Muestra un formulario para registrar un nuevo usuario, incluyendo nombre,
+    correo electrónico, contraseña y si es administrador.
+
     Returns:
         rx.Component: Componente con formulario de registro de usuario.
     """
     def on_submit(fields):
+        """
+        Maneja el evento de envío del formulario de registro.
+
+        Extrae los campos del formulario y llama a la función de registro de usuario
+        en el estado global.
+
+        Args:
+            fields (dict): Diccionario con los datos del formulario.
+
+        Returns:
+            None
+        """
         # Extraer los campos individuales y pasarlos como argumentos al método del State
         if hasattr(fields, "to"):
             fields = fields.to(dict)
@@ -98,10 +123,12 @@ def registro_usuario() -> rx.Component:
     )
 
 
-
 def consultar_usuarios() -> rx.Component:
     """
-    Página para consultar los usuarios.
+    Página para consultar los usuarios registrados en la aplicación.
+
+    Permite consultar y mostrar la lista de usuarios registrados, mostrando
+    nombre, email y rol (admin o usuario). También muestra mensajes de éxito o error.
 
     Returns:
         rx.Component: Componente con lista de usuarios.
@@ -140,7 +167,44 @@ def consultar_usuarios() -> rx.Component:
             width="100%",
         ),
         None
+
     )
+
+    # 4. Componente de la lista: sólo renderizar si la lista de usuarios no está vacía.
+    lista_component_filtrada: rx.Component = rx.cond(
+        State.usuarios_filtrados,
+        rx.vstack(
+            rx.foreach(
+                State.usuarios_filtrados,
+                lambda u: rx.box(
+                    rx.text(
+                        f"👤 {u['nombre']} | {u['email']} | "
+                        + rx.cond(u['es_admin'], "Admin", "Usuario")
+                    ),
+                    padding_y="1",
+                    border_bottom="1px solid #eee",
+                ),
+            ),
+            spacing="2",
+            align="start",
+            width="100%",
+        ),
+        None
+
+    )
+
+
+    def on_submit(fields):
+        """
+
+        """
+        # Extraer los campos individuales y pasarlos como argumentos al método del State
+        if hasattr(fields, "to"):
+            fields = fields.to(dict)
+        nombre = fields.get("nombre","")       
+        # Llamada a la función para registrar el usuario
+        return State.filtrar_usuario(nombre)
+        
 
     # 4. Montaje final del contenedor
     return rx.container(
@@ -148,10 +212,34 @@ def consultar_usuarios() -> rx.Component:
         rx.button("Consultar Usuarios", on_click=State.consultar_usuarios),
         rx.text(mensaje, color=color_mensaje),
         lista_component,
+        rx.heading("Busqueda de usuario", size="7"),
+        rx.form(
+            rx.vstack(
+                rx.input(
+                    name="nombre",
+                    placeholder="Nombre de usuario",
+                    required=True,
+                ),
+                rx.button("Buscar", type_="submit"),
+            ),
+            on_submit=on_submit,
+            reset_on_submit=True,
+        ),
+        rx.text(mensaje, color=color_mensaje),
+        lista_component_filtrada,
+
         margin_top="6",
         max_width="400px",
         align="center",
+        
     )
+
+
+
+
+
+def filtrar_usuario() -> rx.Component:
+    pass
 
 
 app = rx.App()

@@ -1,7 +1,19 @@
 """
 Módulo de configuración de la base de datos para la aplicación Reflex.
-Utiliza SQLAlchemy con SQLite y proporciona el motor, la sesión y la creación de tablas.
-La ruta de la base de datos se puede configurar con la variable de entorno DATABASE_PATH o en el archivo .env.
+
+Este módulo configura la conexión a la base de datos SQLite usando SQLAlchemy.
+Permite definir la URL de la base de datos mediante una variable de entorno o un valor por defecto.
+Proporciona el motor, la clase de sesión y la creación automática de tablas.
+
+Variables:
+    DEFAULT_DB_PATH (Path): Ruta por defecto de la base de datos SQLite.
+    DB_PATH (str): Ruta obtenida de la variable de entorno o por defecto.
+    DATABASE_URL (str): URL de conexión para SQLAlchemy.
+    engine (Engine): Motor de base de datos.
+    SessionLocal (sessionmaker): Clase para crear sesiones.
+
+Uso:
+    Importar SessionLocal para obtener sesiones y operar sobre la base de datos.
 """
 
 import os
