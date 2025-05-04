@@ -22,9 +22,10 @@ from typing import Dict, List
 
 def index() -> rx.Component:
     """
-    Página principal de bienvenida de la aplicación Reflex.
+    Renderiza la página principal de bienvenida de la aplicación Reflex.
 
-    Muestra enlaces a las páginas de registro y consulta de usuarios.
+    Esta página muestra enlaces para navegar hacia el registro de usuarios y la consulta de usuarios registrados.
+    Incluye el logo de la aplicación y un botón para cambiar el modo de color.
 
     Returns:
         rx.Component: Componente raíz de la página principal.
@@ -53,38 +54,32 @@ def index() -> rx.Component:
 
 def registro_usuario() -> rx.Component:
     """
-    Página para registrar nuevos usuarios.
+    Renderiza la página de registro de nuevos usuarios.
 
-    Muestra un formulario para registrar un nuevo usuario, incluyendo nombre,
-    correo electrónico, contraseña y si es administrador.
+    Esta página incluye un formulario para ingresar el nombre, correo electrónico, contraseña y si el usuario es administrador.
+    Al enviar el formulario, se llama a la función de registro en el estado global.
 
     Returns:
-        rx.Component: Componente con formulario de registro de usuario.
+        rx.Component: Componente con el formulario de registro de usuario.
     """
-    def on_submit(fields):
+    def on_submit(fields: dict) -> None:
         """
-        Maneja el evento de envío del formulario de registro.
+        Maneja el evento de envío del formulario de registro de usuario.
 
-        Extrae los campos del formulario y llama a la función de registro de usuario
-        en el estado global.
+        Extrae los campos del formulario y llama a la función de registro de usuario en el estado global.
 
         Args:
             fields (dict): Diccionario con los datos del formulario.
-
-        Returns:
-            None
         """
-        # Extraer los campos individuales y pasarlos como argumentos al método del State
+        # Convertir a dict si es necesario
         if hasattr(fields, "to"):
             fields = fields.to(dict)
-        nombre = fields.get("nombre")
-        email = fields.get("email")
-        password = fields.get("password")
-        es_admin = fields.get("es_admin", False)
-        
-        # Llamada a la función para registrar el usuario
+        nombre: str = fields.get("nombre", "")
+        email: str = fields.get("email", "")
+        password: str = fields.get("password", "")
+        es_admin: bool = fields.get("es_admin", False)
+        # Registrar usuario en el estado global
         return State.registrar_usuario(nombre, email, password, es_admin)
-
 
     return rx.container(
         rx.heading("Registro de Usuario", size="7"),
@@ -116,6 +111,7 @@ def registro_usuario() -> rx.Component:
             on_submit=on_submit,
             reset_on_submit=True,
         ),
+        # Mostrar mensaje de éxito o error si existe
         rx.cond(State.mensaje_usuario, rx.text(State.mensaje_usuario, color="green")),
         margin_top="6",
         max_width="400px",
@@ -125,29 +121,29 @@ def registro_usuario() -> rx.Component:
 
 def consultar_usuarios() -> rx.Component:
     """
-    Página para consultar los usuarios registrados en la aplicación.
+    Renderiza la página de consulta y búsqueda de usuarios registrados.
 
-    Permite consultar y mostrar la lista de usuarios registrados, mostrando
-    nombre, email y rol (admin o usuario). También muestra mensajes de éxito o error.
+    Permite consultar la lista completa de usuarios o filtrar por nombre mediante un formulario de búsqueda.
+    Muestra mensajes de éxito o error según el resultado de la consulta.
 
     Returns:
-        rx.Component: Componente con lista de usuarios.
+        rx.Component: Componente con la lista de usuarios y el formulario de búsqueda.
     """
-    # 1. Mensaje de usuario: si existe, mostrarlo; si no, cadena vacía.
+    # Obtener el mensaje actual del estado, o cadena vacía si no hay mensaje
     mensaje: Var[str] = rx.cond(
-        State.mensaje_usuario,  # si es truthy (no None ni empty)
-        State.mensaje_usuario,  # se muestra ese texto
-        ""                      # si no, cadena vacía
+        State.mensaje_usuario,
+        State.mensaje_usuario,
+        ""
     )
 
-    # 2. Color del mensaje: rojo si empieza con "Error", verde en otro caso.
+    # Determinar el color del mensaje según si es error o éxito
     color_mensaje: Var[str] = rx.cond(
-        mensaje.startswith("Error"),  # usamos 'mensaje', nunca null
+        mensaje.startswith("Error"),
         "red",
         "green",
     )
 
-    # 3. Componente de la lista: sólo renderizar si la lista de usuarios no está vacía.
+    # Renderizar la lista de usuarios solo si hay elementos
     lista_component: rx.Component = rx.cond(
         State.usuarios_lista,
         rx.vstack(
@@ -167,51 +163,26 @@ def consultar_usuarios() -> rx.Component:
             width="100%",
         ),
         None
-
     )
 
-    # 4. Componente de la lista: sólo renderizar si la lista de usuarios no está vacía.
-    lista_component_filtrada: rx.Component = rx.cond(
-        State.usuarios_filtrados,
-        rx.vstack(
-            rx.foreach(
-                State.usuarios_filtrados,
-                lambda u: rx.box(
-                    rx.text(
-                        f"👤 {u['nombre']} | {u['email']} | "
-                        + rx.cond(u['es_admin'], "Admin", "Usuario")
-                    ),
-                    padding_y="1",
-                    border_bottom="1px solid #eee",
-                ),
-            ),
-            spacing="2",
-            align="start",
-            width="100%",
-        ),
-        None
-
-    )
-
-
-    def on_submit(fields):
+    def on_submit(fields: dict) -> None:
         """
+        Maneja el evento de envío del formulario de búsqueda de usuario por nombre.
 
+        Extrae el nombre del formulario y llama a la función de filtrado en el estado global.
+
+        Args:
+            fields (dict): Diccionario con los datos del formulario.
         """
-        # Extraer los campos individuales y pasarlos como argumentos al método del State
         if hasattr(fields, "to"):
             fields = fields.to(dict)
-        nombre = fields.get("nombre","")       
-        # Llamada a la función para registrar el usuario
+        nombre: str = fields.get("nombre", "")
+        # Filtrar usuario por nombre
         return State.filtrar_usuario(nombre)
-        
 
-    # 4. Montaje final del contenedor
     return rx.container(
         rx.heading("Consulta de Usuarios", size="7"),
         rx.button("Consultar Usuarios", on_click=State.consultar_usuarios),
-        rx.text(mensaje, color=color_mensaje),
-        lista_component,
         rx.heading("Busqueda de usuario", size="7"),
         rx.form(
             rx.vstack(
@@ -226,23 +197,22 @@ def consultar_usuarios() -> rx.Component:
             reset_on_submit=True,
         ),
         rx.text(mensaje, color=color_mensaje),
-        lista_component_filtrada,
-
+        lista_component,
         margin_top="6",
         max_width="400px",
         align="center",
-        
     )
 
 
-
-
-
-def filtrar_usuario() -> rx.Component:
+def filtrar_usuario() -> None:
+    """
+    Esta función es un placeholder y no se utiliza en la aplicación.
+    """
     pass
 
 
-app = rx.App()
+app: rx.App = rx.App()
+# Registrar las páginas principales de la aplicación
 app.add_page(index)
 app.add_page(registro_usuario, route="/registro-usuario", title="Registro de Usuario")
 app.add_page(consultar_usuarios, route="/consultar-usuarios", title="Consulta de Usuarios")
