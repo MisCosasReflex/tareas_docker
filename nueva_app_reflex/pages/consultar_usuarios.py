@@ -1,5 +1,6 @@
 import reflex as rx
 from ..state import State
+from ..components.render_lista_usuarios import render_lista_usuarios
 
 
 def consultar_usuarios() -> rx.Component:
@@ -26,27 +27,8 @@ def consultar_usuarios() -> rx.Component:
         "green",
     )
 
-    # Renderizar la lista de usuarios solo si hay elementos
-    lista_component: rx.Component = rx.cond(
-        State.usuarios_lista,
-        rx.vstack(
-            rx.foreach(
-                State.usuarios_lista,
-                lambda u: rx.box(
-                    rx.text(
-                        f"👤 {u['nombre']} | {u['email']} | "
-                        + rx.cond(u['es_admin'], "Admin", "Usuario")
-                    ),
-                    padding_y="1",
-                    border_bottom="1px solid #eee",
-                ),
-            ),
-            spacing="2",
-            align="start",
-            width="100%",
-        ),
-        None
-    )
+    # Renderizar la lista de usuarios solo si hay elementos. lista
+    lista_component = render_lista_usuarios() 
 
     def on_submit(fields: dict) -> None:
         """

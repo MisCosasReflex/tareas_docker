@@ -20,7 +20,7 @@ from nueva_app_reflex.db.schemas import UsuarioCreate
 from typing import Dict, List
 from nueva_app_reflex.pages.registro_usuario import registro_usuario
 from nueva_app_reflex.pages.consultar_usuarios import consultar_usuarios
-
+from nueva_app_reflex.components.link_button import link_button
 
 def index() -> rx.Component:
     """
@@ -36,16 +36,8 @@ def index() -> rx.Component:
         rx.color_mode.button(position="top-right"),
         rx.vstack(
             rx.heading("Aplicacion de tareas por hacer", size="9"),
-            rx.link(
-                rx.button("Agrega un usuario nuevo"),
-                href="http://localhost:3000/registro-usuario/",
-                is_external=True,
-            ),
-            rx.link(
-                rx.button("Consulta los usuarios agregados"),
-                href="http://localhost:3000/consultar-usuarios/",
-                is_external=True,
-            ),
+            link_button("Agrega un usuario nuevo", "http://localhost:3000/registro-usuario/"),
+            link_button("Consulta los usuarios agregados", "http://localhost:3000/consultar-usuarios/"),
             spacing="5",
             justify="center",
             min_height="85vh",
