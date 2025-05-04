@@ -17,10 +17,14 @@ class State(rx.State):
     - Mensajes para el usuario sobre operaciones realizadas.
     - Lista de usuarios consultados.
 
+    Atributos:
+        mensaje_usuario (str): Mensaje de éxito o error para mostrar en la UI
+        usuarios_lista (list[dict]): Lista de usuarios mostrados en la UI
+
     Métodos principales:
         - registrar_usuario: Registra un nuevo usuario en la base de datos.
         - consultar_usuarios: Consulta todos los usuarios registrados.
-        - filtrar_usuario: Filtra un usuario por nombre.
+        - filtrar_usuario: Busca un usuario por nombre exacto.
     """
     mensaje_usuario: Optional[str] = None  # Mensaje de éxito o error para mostrar en la UI
     usuarios_lista: List[dict] = []        # Lista de usuarios mostrados en la UI
@@ -29,34 +33,42 @@ class State(rx.State):
         """
         Registra un nuevo usuario en la base de datos.
 
-        Valida los datos usando Pydantic, genera el hash de la contraseña y guarda el usuario en la base de datos.
-        Maneja errores de validación y de integridad (usuarios duplicados).
+        Llama al servicio de registro de usuarios con los datos proporcionados y actualiza
+        el mensaje de estado con el resultado de la operación.
 
         Args:
             nombre (str): Nombre de usuario.
             email (str): Correo electrónico del usuario.
             password (str): Contraseña en texto plano.
             es_admin (bool, opcional): Indica si el usuario es administrador. Por defecto False.
+
+        Returns:
+            None: El método actualiza el estado interno de la aplicación.
         """
         self.mensaje_usuario = servicio_registrar_usuario(nombre, email, password, es_admin)
 
     def consultar_usuarios(self) -> None:
         """
-        Consulta todos los usuarios de la base de datos y actualiza la lista y el mensaje de estado.
+        Consulta todos los usuarios registrados en la base de datos.
 
-        Recupera la lista de usuarios y la almacena en el estado. Si hay un error,
-        actualiza el mensaje y limpia la lista.
+        Llama al servicio de consulta de usuarios y actualiza el estado con los resultados.
+
+        Returns:
+            None: El método actualiza el estado interno de la aplicación.
         """
         self.usuarios_lista, self.mensaje_usuario = servicio_consultar_usuarios()
 
     def filtrar_usuario(self, nombre: str) -> None:
         """
-        Filtra la lista de usuarios por nombre exacto y actualiza el estado.
+        Busca un usuario por nombre exacto en la base de datos.
 
-        Busca un usuario por nombre en la base de datos. Si lo encuentra, actualiza la lista con ese usuario.
-        Si no lo encuentra, limpia la lista y actualiza el mensaje.
+        Llama al servicio de filtrado de usuarios con el nombre proporcionado y actualiza
+        el estado con los resultados.
 
         Args:
-            nombre (str): Nombre del usuario a buscar.
+            nombre (str): Nombre exacto del usuario a buscar.
+
+        Returns:
+            None: El método actualiza el estado interno de la aplicación.
         """
         self.usuarios_lista, self.mensaje_usuario = servicio_filtrar_usuario(nombre)

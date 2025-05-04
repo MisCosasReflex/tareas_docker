@@ -59,11 +59,13 @@ def servicio_consultar_usuarios() -> tuple[list[dict], str]:
     """
     Consulta todos los usuarios de la base de datos.
 
-    Recupera la lista de usuarios y la almacena en el estado. Si hay un error,
-    actualiza el mensaje y limpia la lista.
-    
+    Recupera la lista de usuarios registrados en la base de datos y los devuelve
+    en formato de lista de diccionarios junto con un mensaje de estado.
+
     Returns:
-        tuple: Una tupla con (lista_usuarios, mensaje)
+        tuple[list[dict], str]: Una tupla que contiene:
+            - lista_usuarios: Lista de diccionarios con información de los usuarios
+            - mensaje: Mensaje de estado indicando el resultado de la operación
     """
     usuarios_lista = []
     mensaje_usuario = ""
@@ -88,16 +90,18 @@ def servicio_consultar_usuarios() -> tuple[list[dict], str]:
 
 def servicio_filtrar_usuario(nombre: str) -> tuple[list[dict], str]:
     """
-    Filtra la lista de usuarios por nombre exacto.
+    Busca un usuario por nombre exacto en la base de datos.
 
-    Busca un usuario por nombre en la base de datos. Si lo encuentra, devuelve ese usuario.
-    Si no lo encuentra, devuelve una lista vacía y actualiza el mensaje.
+    Realiza una búsqueda de un usuario específico por su nombre exacto y devuelve
+    la información del usuario encontrado en formato de lista de diccionarios.
 
     Args:
-        nombre (str): Nombre del usuario a buscar.
-        
+        nombre (str): Nombre exacto del usuario a buscar.
+
     Returns:
-        tuple: Una tupla con (lista_usuarios_filtrados, mensaje)
+        tuple[list[dict], str]: Una tupla que contiene:
+            - lista_usuarios: Lista con la información del usuario encontrado (o vacía si no se encuentra)
+            - mensaje: Mensaje de estado indicando el resultado de la operación
     """
     usuarios_lista = []
     mensaje_usuario = ""
