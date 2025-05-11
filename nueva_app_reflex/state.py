@@ -6,7 +6,7 @@ from nueva_app_reflex.db.models import Usuario
 from sqlalchemy.exc import IntegrityError
 import hashlib
 from pydantic import ValidationError
-from nueva_app_reflex.users.services import servicio_registrar_usuario, servicio_consultar_usuarios, servicio_filtrar_usuario
+from nueva_app_reflex.users.services import servicio_registrar_usuario, servicio_consultar_usuarios, servicio_filtrar_usuario, servicio_eliminar_usuario
 
 
 class State(rx.State):
@@ -72,3 +72,15 @@ class State(rx.State):
             None: El método actualiza el estado interno de la aplicación.
         """
         self.usuarios_lista, self.mensaje_usuario = servicio_filtrar_usuario(nombre)
+
+    def eliminacion_usuario(self, nombre:str) -> None:
+        """Elimina un usuario por su nombre.
+        
+        Args:
+            nombre (str): Nombre del usuario a eliminar.
+        """
+        servicio_eliminar_usuario(nombre)
+        self.mensaje_usuario = f"Usuario {nombre} eliminado con éxito"
+        # Actualizamos la lista de usuarios sin sobrescribir el mensaje
+        usuarios, _ = servicio_consultar_usuarios()
+        self.usuarios_lista = usuarios

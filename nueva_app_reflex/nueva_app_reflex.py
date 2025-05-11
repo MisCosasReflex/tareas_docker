@@ -20,6 +20,7 @@ from nueva_app_reflex.db.schemas import UsuarioCreate
 from typing import Dict, List
 from nueva_app_reflex.pages.registro_usuario import registro_usuario
 from nueva_app_reflex.pages.consultar_usuarios import consultar_usuarios
+from nueva_app_reflex.pages.eliminar_usuario import page_eliminar_usuario
 from nueva_app_reflex.components.link_button import link_button
 
 def index() -> rx.Component:
@@ -38,6 +39,7 @@ def index() -> rx.Component:
             rx.heading("Aplicacion de tareas por hacer", size="9"),
             link_button("Agrega un usuario nuevo", "http://localhost:3000/registro-usuario/"),
             link_button("Consulta los usuarios agregados", "http://localhost:3000/consultar-usuarios/"),
+            link_button("Elimina un usuario", "http://localhost:3000/eliminar-usuario/"),   
             spacing="5",
             justify="center",
             min_height="85vh",
@@ -52,3 +54,4 @@ app: rx.App = rx.App()
 app.add_page(index)
 app.add_page(registro_usuario, route="/registro-usuario", title="Registro de Usuario")
 app.add_page(consultar_usuarios, route="/consultar-usuarios", title="Consulta de Usuarios")
+app.add_page(page_eliminar_usuario, route="/eliminar-usuario", title="Eliminación de Usuario")
