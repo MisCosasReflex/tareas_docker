@@ -78,19 +78,69 @@ nueva_app_reflex/
 
 ## Estado actual de la aplicación
 
-- **Página raíz (`/`)**: Muestra un encabezado "Aplicacion de tareas por hacer" y dos botones:
+- **Página raíz (`/`)**: Muestra un encabezado "Aplicacion de tareas por hacer" y tres botones:
     - **"Agrega un usuario nuevo"**: Dirige a la página de registro de usuario (`/registro-usuario`).
-    - **"Consulta los usuarios agregados"**: (Botón preparado para futura funcionalidad de listado de usuarios).
-- **Página de registro de usuario (`/registro-usuario`)**: Permite ingresar nombre, email, contraseña y marcar si el usuario es administrador. Al enviar el formulario, se muestra un mensaje de éxito (el registro real en base de datos puede activarse/restaurarse en el callback correspondiente).
+    - **"Consulta los usuarios agregados"**: Dirige a la página de consulta de usuarios (`/consultar-usuarios`).
+    - **"Elimina un usuario"**: Dirige a la página de eliminación de usuarios (`/eliminar-usuario`).
+- **Página de registro de usuario (`/registro-usuario`)**: Permite ingresar nombre, email, contraseña y marcar si el usuario es administrador. Al enviar el formulario, se registra el usuario en la base de datos y se muestra un mensaje de éxito.
+- **Página de consulta de usuarios (`/consultar-usuarios`)**: Muestra una lista de todos los usuarios registrados y permite filtrar por nombre.
+- **Página de eliminación de usuarios (`/eliminar-usuario`)**: Permite eliminar un usuario existente proporcionando su nombre exacto.
 - **Base de datos**: Se gestiona con SQLAlchemy y SQLite. El archivo se almacena en `data/app.db` y es persistente tanto en local como en Docker.
+- **Sistema de logging**: La aplicación incluye un sistema de logging completo que registra información, advertencias y errores en diferentes archivos según su nivel de severidad.
 - **Preparado para contenedores**: Toda la configuración y rutas de base de datos son compatibles con Docker y desarrollo local.
 
 ### Flujo lógico actual
 1. El usuario accede a la página principal (`/`).
 2. Puede ir al registro de usuario mediante el botón correspondiente.
-3. (Próximamente) Podrá consultar usuarios agregados desde el botón preparado.
+3. Puede consultar los usuarios agregados desde el botón de consulta.
+4. Puede eliminar usuarios existentes desde el botón de eliminación.
 
-> ⚠️ **Nota:** Las nuevas funcionalidades (página de registro de usuario y navegación desde la raíz) solo han sido probadas en entorno local. **Aún no se han verificado en Docker.** Si encuentras algún problema ejecutando en contenedor, revisa la configuración y dependencias, y repórtalo para su ajuste.
+### Sistema de Logging
+
+La aplicación implementa un sistema de logging robusto con las siguientes características:
+
+- **Niveles de log**: DEBUG, INFO, WARNING, ERROR, CRITICAL
+- **Archivos de log separados**: 
+  - `logs/nueva_app_reflex.log`: Todos los niveles de log
+  - `logs/nueva_app_reflex.error.log`: Sólo errores (ERROR y CRITICAL)
+  - `logs/nueva_app_reflex.critical.log`: Sólo errores críticos
+- **Formato de logs**: Incluye timestamp, nivel, nombre del módulo y mensaje
+- **Rotación de logs**: Los archivos rotan automáticamente cuando alcanzan cierto tamaño
+
+Esto facilita el seguimiento de errores y el diagnóstico de problemas tanto en desarrollo como en producción.
+
+> ⚠️ **Nota:** Se ha implementado un sistema de autenticación seguro para la aplicación. Esta funcionalidad solo ha sido probada en entorno local. **Aún no se ha verificado completamente en Docker.** Si encuentras algún problema ejecutando en contenedor, revisa la configuración y dependencias, y repórtalo para su ajuste.
+
+## Sistema de Autenticación Segura
+
+Se ha incorporado un sistema de autenticación seguro y modular a la aplicación:
+
+### Características principales
+
+- **Gestión de contraseñas robusta** usando Argon2 (algoritmo de hasheo más seguro actualmente)
+- **Autenticación basada en tokens JWT** con soporte para tokens de acceso y refresco
+- **Protección contra ataques comunes** (timing attacks, fuerza bruta, inyección)
+- **Verificación de requisitos de contraseñas** (longitud, complejidad, caracteres especiales)
+- **Completamente integrado** con el modelo de usuario existente
+- **Reutilizable** en otros proyectos Python (FastAPI, Flask, etc.)
+
+### Nuevas páginas y funcionalidades
+
+- **Página de inicio de sesión** (/login)
+- **Página de registro** (/register)
+- **Perfil de usuario** (/profile)
+- **Cambio de contraseña** (/change_password)
+- **Barra de navegación** con estado de autenticación
+- **Redirección automática** para páginas protegidas
+
+### Dependencias añadidas
+
+El sistema requiere las siguientes dependencias (ya incluidas en requirements.txt):
+
+```
+pyjwt>=2.6.0
+argon2-cffi>=21.3.0
+```
 
 ---
 
